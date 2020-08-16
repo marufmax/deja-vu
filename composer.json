@@ -15,7 +15,8 @@
     "minimum-stability": "dev",
     "require": {
         "php": "^7.2.5",
-        "illuminate/support": "^v7.3.0"
+        "illuminate/support": "^v7.3.0",
+        "marufmax/deja-vu": "@dev"
     },
     "autoload": {
         "psr-4": {
@@ -25,6 +26,13 @@
     "autoload-dev": {
         "psr-4": {
             "MarufMax\\DejaVu\\Test\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MarufMax\\DejaVu\\DejaVuServiceProvider"
+            ]
         }
     }
 }
