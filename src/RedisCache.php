@@ -254,4 +254,9 @@ class RedisCache implements CacheInterface
     {
         $this->prefix = ! empty($prefix) ? $prefix.':' : '';
     }
+
+    public function __destruct()
+    {
+        RedisClient::close();
+    }
 }
