@@ -2,7 +2,7 @@
 <p align="center">
     Laravel - DejaVu
 </p>
-### Laravel Redis sentinel support for High Availability :arrow_up: :arrow_up: :fire:  
+## Laravel Redis sentinel support for High Availability :arrow_up: :arrow_up: :fire:  
 
 
 
