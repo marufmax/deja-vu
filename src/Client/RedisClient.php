@@ -40,7 +40,7 @@ class RedisClient
      * Getting singleton of redis Master Instance
      *
      * @return \Redis
-     * @throws EagleRedisException
+     * @throws RedisException
      */
     public static function getMasterInstance() : \Redis
     {
@@ -54,25 +54,13 @@ class RedisClient
             $connectedMaster = $redis->connect();
             self::$redisMaster = $connectedMaster;
 
-            $masterInfo = self::$redisMaster->info();
-
-            RedisLogger::getInstance()
-                ->setRedisStats(
-                    self::logRedisStats(
-                        $redis->getIp(),
-                        $redis->getPort(),
-                        $masterInfo
-                    )
-                );
+            self::$redisMaster->info();
 
             return self::$redisMaster;
         } catch (\RedisException $exception) {
             $logMessage['ip'] = $redis->getIp();
             $logMessage['port'] = $redis->getPort();
             $logMessage['message'] = $exception->getMessage();
-
-            RedisLogger::getInstance()
-                ->redisErrorConnection($logMessage);
         }
 
         throw new RedisException('Redis Master node is not alive');
@@ -82,7 +70,7 @@ class RedisClient
      * Redis master instance
      *
      * @return RedisMaster
-     * @throws EagleRedisException
+     * @throws RedisException
      */
     private static function getMasterInfo() : RedisMaster
     {
@@ -124,18 +112,6 @@ class RedisClient
             $connectedSlave = $slave->connect();
 
             self::$redisSlave = $connectedSlave;
-            \Flight::set('connectedWithRedis', true);
-            \Flight::set('redisConnectionTime', time());
-
-            $slaveInfo = self::$redisSlave->info();
-            RedisLogger::getInstance()
-                ->setRedisStats(
-                    self::logRedisStats(
-                        $slave->getIp(),
-                        $slave->getPort(),
-                        $slaveInfo
-                    )
-                );
 
             return self::$redisSlave;
         } catch (\RedisException $exception) {
@@ -143,8 +119,7 @@ class RedisClient
             $logMessage['port'] = $slave->getPort();
             $logMessage['message'] = $exception->getMessage();
 
-            RedisLogger::getInstance()
-                ->redisErrorConnection($logMessage);
+            throw new RedisException($exception->getMessage());
         }
 
         throw new EagleRedisException('None of redis slave nodes are alive');

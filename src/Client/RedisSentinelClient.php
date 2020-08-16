@@ -2,6 +2,7 @@
 
 namespace MarufMax\DejaVu\Client;
 
+use Illuminate\Support\Facades\Log;
 use MarufMax\DejaVu\Exceptions\RedisException;
 
 class RedisSentinelClient
@@ -33,9 +34,11 @@ class RedisSentinelClient
             throw new RedisException('phpredis not found. Please install phpredis');
         }
 
-        $sentinels = config()->get('sentinels');
+        $sentinels = config('dejavu.sentinels');
 
-        dd($sentinels);
+        if ($sentinels === null) {
+            throw new RedisException('No sentinels found. Did you publish the config file?');
+        }
 
         foreach ($sentinels as $sentinel) {
             if (self::$sentinel !== null) {
@@ -47,7 +50,7 @@ class RedisSentinelClient
                 $sentinel['port'],
                 $sentinel['timeout'],
                 'sentinel',
-                100
+                3
             );
 
             try {
@@ -58,7 +61,7 @@ class RedisSentinelClient
                 $logMessage['port'] = $sentinel['port'] ?? '';
                 $logMessage['message'] = $exception->getMessage();
 
-                throw new RedisException($logMessage['ip'] . ":".$logMessage['port'] . ' error. ' . $logMessage['message']);
+                throw new RedisException($logMessage['ip'] . ":".$logMessage['port'] . ' Redis Sentinel error. ' . $logMessage['message']);
 
                 continue;
             }
