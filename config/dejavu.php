@@ -8,14 +8,13 @@
  * @param string $key
  * @return array
  */
-
-$get = static function(string $key): array {
+function getRedisServers(string $key): array {
     return array_map('trim', explode(',', env($key)));
-};
+}
 
-$sentinelsIp = $get('REDIS_SENTINELS_IPS');
-$sentinelsPort = $get('REDIS_SENTINELS_PORTS');
-$sentinelsTimeout = $get('REDIS_SENTINELS_TIMEOUTS');
+$sentinelsIp = getRedisServers('REDIS_SENTINELS_IPS');
+$sentinelsPort = getRedisServers('REDIS_SENTINELS_PORTS');
+$sentinelsTimeout = getRedisServers('REDIS_SENTINELS_TIMEOUTS');
 
 $sentinels = [];
 
@@ -29,5 +28,6 @@ foreach ($sentinelsIp as $key => $ip) {
 
 
 return [
-  'sentinels' => $sentinels
+    'redis_auth' => env('REDIS_PASS', ''),
+    'sentinels' => $sentinels,
 ];
