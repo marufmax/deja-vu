@@ -39,16 +39,17 @@ abstract class RedisInstance implements RedisInterface
     public function connect() : \Redis
     {
         $redis = new \Redis();
-        $persistentId = self::PERSISTENT_ID . '_' . $this->getIp();
 
         $redis->pconnect(
             $this->getIp(),
             $this->getPort(),
             self::TIMEOUT,
-            $persistentId
+            $this->getPersistantId()
         );
+        if (getenv('REDIS_PASS') !== null) {
+            $redis->auth(getenv('REDIS_PASS'));
+        }
 
-        $redis->auth(getenv('REDIS_PASS'));
         $redis->setOption(\Redis::OPT_READ_TIMEOUT, 60);
         $redis->config('SET', 'timeout', '10');
 
@@ -83,6 +84,16 @@ abstract class RedisInstance implements RedisInterface
     public function random(array $redis): array
     {
         return $redis[array_rand($redis)];
+    }
+
+    /**
+     * Get persistant id
+     *
+     * @return string
+     */
+    protected function getPersistantId() : string
+    {
+        return config('dejavu.persistant_id') . '_' . $this->getIp();
     }
 
     /**

@@ -34,7 +34,7 @@ class RedisSentinelClient
             throw new RedisException('phpredis not found. Please install phpredis');
         }
 
-        $sentinels = config('dejavu.sentinels');
+        $sentinels = self::getSentinels();
 
         if ($sentinels === null) {
             throw new RedisException('No sentinels found. Did you publish the config file?');
@@ -68,5 +68,33 @@ class RedisSentinelClient
         }
 
         throw new RedisException('None of redis sentinels are alive');
+    }
+
+    protected static function getSentinels() : array
+    {
+        $sentinelsIp = self::getRedisServers('dejavu.sentinels_ips');
+        $sentinelsPort = self::getRedisServers('dejavu.sentinels_ports');
+        $sentinelsTimeout = self::getRedisServers('dejavu.sentinels_timeouts');
+
+        $sentinels = [];
+
+        foreach ($sentinelsIp as $key => $ip) {
+            $sentinel['host'] = $ip;
+            $sentinel['port'] = isset($sentinelsPort[$key]) ? (int)$sentinelsPort[$key] : 26379;
+            $sentinel['timeout'] = isset($sentinelsTimeout[$key]) ? (float) $sentinelsTimeout[$key] : 1.0;
+
+            $sentinels[] = $sentinel;
+        }
+
+        return $sentinels;
+    }
+
+    /**
+     * @param string $key
+     * @return array
+     */
+    protected static function getRedisServers(string $key)
+    {
+        return array_map('trim', explode(',', config($key)));
     }
 }

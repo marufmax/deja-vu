@@ -24,6 +24,7 @@ class DejaVuServiceProvider extends ServiceProvider
             __DIR__.'/../config/dejavu.php','dejavu'
         );
     }
+
     /**
      * Publishing package related files
      *
