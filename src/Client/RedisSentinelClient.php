@@ -61,6 +61,7 @@ class RedisSentinelClient
                 $logMessage['port'] = $sentinel['port'] ?? '';
                 $logMessage['message'] = $exception->getMessage();
 
+
                 throw new RedisException($logMessage['ip'] . ":".$logMessage['port'] . ' Redis Sentinel error. ' . $logMessage['message']);
 
                 continue;
@@ -70,18 +71,20 @@ class RedisSentinelClient
         throw new RedisException('None of redis sentinels are alive');
     }
 
+    // TODO:: Will move into one function
     protected static function getSentinels() : array
     {
-        $sentinelsIp = self::getRedisServers('dejavu.sentinels_ips');
-        $sentinelsPort = self::getRedisServers('dejavu.sentinels_ports');
-        $sentinelsTimeout = self::getRedisServers('dejavu.sentinels_timeouts');
+        $ips = self::getRedisServers('dejavu.sentinels.ips');
+        $ports = self::getRedisServers('dejavu.sentinels.ports');
+        $passwords = self::getRedisServers('dejavu.sentinels.passwords');
+        $timeouts = self::getRedisServers('dejavu.sentinels.timeouts');
 
         $sentinels = [];
 
-        foreach ($sentinelsIp as $key => $ip) {
+        foreach ($ips as $key => $ip) {
             $sentinel['host'] = $ip;
-            $sentinel['port'] = isset($sentinelsPort[$key]) ? (int)$sentinelsPort[$key] : 26379;
-            $sentinel['timeout'] = isset($sentinelsTimeout[$key]) ? (float) $sentinelsTimeout[$key] : 1.0;
+            $sentinel['port'] = isset($ports[$key]) ? (int)$ports[$key] : 26379;
+            $sentinel['timeout'] = isset($timeouts[$key]) ? (float) $timeouts[$key] : 1.0;
 
             $sentinels[] = $sentinel;
         }

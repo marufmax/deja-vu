@@ -68,12 +68,14 @@ Add those to your `.env` file:
 
 ```
 # Redis Configuration (Use comma Separated if have multiple)
-REDIS_SENTINELS_IPS=172.16.0.11,172.16.0.12
-REDIS_SENTINELS_PORTS=26379,26380
-REDIS_SENTINELS_TIMEOUTS=1.0,1.0
+REDIS_SENTINELS=localhost,localhost
+REDIS_SENTINELS_PORTS=27379,27380
+REDIS_PASS=AStrongPassword
 ```
 
 Here there is two redis sentinels server. Please put only sentinel server not any master or slaves IPs. 
+Due to redis sentinel limitation please set same password to every host. 
+see https://github.com/bitnami/bitnami-docker-redis-sentinel/issues/23 
 
 
 

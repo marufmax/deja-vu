@@ -2,6 +2,7 @@
 
 namespace MarufMax\DejaVu\Client;
 
+use Illuminate\Support\Facades\Log;
 use MarufMax\DejaVu\Exceptions\RedisException;
 
 class RedisClient
@@ -61,6 +62,8 @@ class RedisClient
             $logMessage['ip'] = $redis->getIp();
             $logMessage['port'] = $redis->getPort();
             $logMessage['message'] = $exception->getMessage();
+
+            throw new RedisException('Redis Master: ' . $exception->getMessage());
         }
 
         throw new RedisException('Redis Master node is not alive');
@@ -96,7 +99,6 @@ class RedisClient
             $sentinel = RedisSentinelClient::getInstance();
             $slaves = $sentinel->slaves($redisMaster->getName());
 
-
             if (\count($slaves) < 1) {
                 return self::$redisSlave = self::getMasterInstance();
             }
@@ -119,14 +121,14 @@ class RedisClient
             $logMessage['port'] = $slave->getPort();
             $logMessage['message'] = $exception->getMessage();
 
-            throw new RedisException($exception->getMessage());
+            throw new RedisException('Redis Slave: ' . $exception->getMessage());
         }
 
         throw new EagleRedisException('None of redis slave nodes are alive');
     }
 
     /**
-     * Remove disconnected, subjectively and objectively redis instances
+     * Remove disconnected, subjectively and objectively down redis instances
      *
      * @param array $redis list of redis instances
      *
@@ -141,7 +143,7 @@ class RedisClient
                 $logMessage['role'] = $server['role-reported'];
                 $logMessage['message'] = "Server down: {$server['flags']}";
 
-                RedisLogger::getInstance()->redisErrorConnection($logMessage);
+                Log::info('A redis server is down', $logMessage);
             } else {
                 $upRedis[] = $server;
             }

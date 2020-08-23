@@ -7,13 +7,13 @@ use MarufMax\DejaVu\Exceptions\RedisException;
 
 abstract class RedisInstance implements RedisInterface
 {
-    protected const PERSISTENT_ID  = 'eagle';
     protected const TIMEOUT = 2.5;
     protected const IDLE_TIMEOUT = 10;
 
     private $ip;
     private $port;
     private $name;
+    private $password;
     protected $redisArr;
 
     /**
@@ -46,8 +46,9 @@ abstract class RedisInstance implements RedisInterface
             self::TIMEOUT,
             $this->getPersistantId()
         );
-        if (getenv('REDIS_PASS') !== null) {
-            $redis->auth(getenv('REDIS_PASS'));
+        
+        if ($this->getPassword() !== null) {
+            $redis->auth($this->getPassword());
         }
 
         $redis->setOption(\Redis::OPT_READ_TIMEOUT, 60);
@@ -73,6 +74,28 @@ abstract class RedisInstance implements RedisInterface
         $this->redisArr = $randomRedis;
 
         return $randomRedis;
+    }
+
+
+    /**
+     * Set Redis Server Password
+     *
+     * @param string $ip
+     * @return string|null
+     */
+//    public function setPassword(string $ip) : ?string
+//    {
+//        $position = array_search($ip, array_map('trim', explode(',', config('dejavu.servers.ips'))));
+//        if ($position !== false) {
+//            return array_map('trim', explode(',', config('dejavu.servers.passwords')))[$position];
+//        }
+//
+//        return null;
+//    }
+
+    public function getPassword()
+    {
+        return config('dejavu.password');
     }
 
     /**
